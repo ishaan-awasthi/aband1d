@@ -26,8 +26,9 @@ export default function Home() {
       if (!res.ok) throw new Error(data.error || "Something went wrong");
 
       setResults(data.predictions);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message);
     } finally {
       setLoading(false);
     }

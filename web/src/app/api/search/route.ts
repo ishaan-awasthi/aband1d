@@ -11,8 +11,9 @@ export async function POST(req: NextRequest) {
 
     const predictions = await runClassificationPipeline(location, radius);
     return NextResponse.json({ predictions });
-  } catch (err: any) {
-    console.error("❌ classify route error:", err);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("❌ classify route error:", message);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
