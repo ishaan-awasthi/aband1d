@@ -1,0 +1,9 @@
+{
+    "name": "aband1d-backend",
+    "type": "module",
+    "dependencies": {
+      "dotenv": "^16.3.1",
+      "axios": "^1.4.0"
+    }
+  }
+  
