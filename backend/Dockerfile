@@ -7,18 +7,17 @@ RUN apt-get update && apt-get install -y curl && \
     curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
     apt-get install -y nodejs
 
-# copy and install python deps
+# install python deps
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# copy and install node deps
-COPY backend/package.json ./scripts/package.json
-COPY backend/package-lock.json ./scripts/package-lock.json
+# install node deps from local package.json
+COPY package.json package-lock.json ./scripts/
 WORKDIR /app/scripts
 RUN npm install
 WORKDIR /app
 
-# copy the rest of your app
+# copy rest of backend
 COPY . .
 
 EXPOSE 8080
