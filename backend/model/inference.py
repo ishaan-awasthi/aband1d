@@ -6,9 +6,12 @@ import sys
 import os
 
 # === Load model ===
+script_dir = os.path.dirname(os.path.abspath(__file__))
+model_path = os.path.join(script_dir, "best_model.pt")
+
 model = models.resnet18()
 model.fc = torch.nn.Linear(model.fc.in_features, 2)  # binary classifier
-model.load_state_dict(torch.load("best_model.pt"))
+model.load_state_dict(torch.load(model_path, map_location=torch.device("cpu")))
 model.eval()
 
 # === Image preprocessing ===
