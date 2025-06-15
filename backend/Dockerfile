@@ -1,22 +1,17 @@
-# Base image with Node.js + Python
-FROM python:3.10-slim
-
-# Install Node.js (for fetch_images.js)
-RUN apt-get update && apt-get install -y curl gnupg && \
-    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get install -y nodejs && \
-    apt-get clean
+# Use a minimal Python image
+FROM python:3.11-slim
 
 # Set working directory
 WORKDIR /app
 
-# Copy everything into container
-COPY . .
-
-# Install Python dependencies
+# Copy requirements and install them
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Expose port 8080
+# Copy the rest of your backend
+COPY . .
+
+# Expose the port (Render uses 8080 by default)
 EXPOSE 8080
 
 # Start the FastAPI server

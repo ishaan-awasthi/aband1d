@@ -50,3 +50,7 @@ async def classify_location(request: Request):
     except subprocess.CalledProcessError as e:
         print(f"💥 Subprocess error: {e}")
         return {"error": str(e)}
+
+@app.get("/healthz")
+async def health_check():
+    return {"status": "ok"}
