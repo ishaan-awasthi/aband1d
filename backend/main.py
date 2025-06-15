@@ -9,11 +9,12 @@ app = FastAPI()
 # Allow requests from your frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Replace with specific frontend origin if needed
+    allow_origins=["https://aband1d.com", "https://www.aband1d.com"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 @app.post("/api/search")
 async def classify_location(request: Request):
