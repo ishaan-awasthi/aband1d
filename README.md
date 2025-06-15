@@ -1,5 +1,5 @@
 # aband1d
 
-pronounced "abandoned"
+it's pronounced "aband**one**d"
 
 https://aband1d.com
