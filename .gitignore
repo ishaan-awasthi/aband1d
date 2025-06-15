@@ -1,2 +1,16 @@
-# Ignore all env files
-.env* 
+# 🌍 ENVIRONMENT
+.env
+.env.local
+.env.production
+.env.development
+
+# 🧠 PYTHON
+__pycache__/
+*.pyc
+
+# 📦 NODE (scripts)
+backend/scripts/node_modules/
+backend/scripts/package-lock.json
+
+# 📸 GENERATED IMAGES
+backend/images/

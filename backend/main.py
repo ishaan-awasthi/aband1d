@@ -30,11 +30,11 @@ async def classify_location(request: Request):
     print(f"📍 Location: {location}, 🎯 Radius: {radius}")
 
     try:
-        print("🛰️ Running fetch_images.js...")
+        print("🛰️ Running fetch_images.mjs...")
         subprocess.run([
-            "node", "./scripts/fetch_images.js", location, str(radius)
+            "node", "./scripts/fetch_images.mjs", location, str(radius)
         ], check=True)
-        print("✅ fetch_images.js completed")
+        print("✅ fetch_images.mjs completed")
 
         print("🧠 Running inference.py...")
         output = subprocess.check_output([

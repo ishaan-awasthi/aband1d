@@ -10,7 +10,7 @@ export async function runClassificationPipeline(
   radius: number
 ): Promise<string[]> {
   // 1. Generate satellite images
-  const scriptPath = path.join(process.cwd(), "../scripts/fetch_images.js");
+  const scriptPath = path.join(process.cwd(), "../scripts/fetch_images.mjs");
   console.log("Running script at:", scriptPath);
 
   const command = `node "${scriptPath}" "${location}" ${radius}`;
