@@ -16,7 +16,7 @@ export default function Home() {
     setResults(null);
 
     try {
-      const res = await fetch("/api/search", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/search`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ location, radius }),
