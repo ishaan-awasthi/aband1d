@@ -15,9 +15,8 @@ definite_origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=definite_origins,
-    allow_origin_regex=r"^https:\/\/aband1d-.*-ishaanawasthis-projects\.vercel\.app$",
-    allow_credentials=True,
+    allow_origins=["*"],  # wildcard: allow everything
+    allow_credentials=False,  # must be false when using "*"
     allow_methods=["*"],
     allow_headers=["*"],
 )
