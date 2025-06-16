@@ -2,11 +2,10 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 import subprocess
 import os
-import json
 
 app = FastAPI()
 
-# Allow requests from your frontend
+# CORS settings
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["https://aband1d.com", "https://www.aband1d.com"],
@@ -14,7 +13,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 @app.post("/api/search")
 async def classify_location(request: Request):
@@ -30,19 +28,15 @@ async def classify_location(request: Request):
     print(f"📍 Location: {location}, 🎯 Radius: {radius}")
 
     try:
-        # fetch images using node
         print("🛰️ Running fetch_images.mjs...")
         subprocess.run(
-            ["node", "./scripts/fetch_images.mjs", location, str(radius)],
+            ["node", "scripts/fetch_images.mjs", location, str(radius)],
             check=True
         )
         print("✅ fetch_images.mjs completed")
 
-        # build absolute path to inference.py
-        inference_path = os.path.join(os.path.dirname(__file__), "model", "inference.py")
-        print(f"🧠 Running inference.py at {inference_path}...")
-
-        output = subprocess.check_output(["python3", inference_path])
+        print("🧠 Running inference.py...")
+        output = subprocess.check_output(["python3", "model/inference.py"])
         print("✅ inference.py completed")
 
         predictions = [line for line in output.decode().split("\n") if "→ interesting" in line]
@@ -54,10 +48,6 @@ async def classify_location(request: Request):
     except subprocess.CalledProcessError as e:
         print(f"💥 Subprocess error: {e}")
         return {"error": str(e)}
-    except Exception as e:
-        print(f"💥 General error: {e}")
-        return {"error": str(e)}
-
 
 @app.get("/healthz")
 async def health_check():
