@@ -5,14 +5,23 @@ import os
 
 app = FastAPI()
 
-# CORS settings
+
+definite_origins = [
+        "https://aband1d.com",
+        "https://www.aband1d.com",
+        "https://aband1d.vercel.app",
+        "https://aband1d-git-main-ishaanawasthis-projects.vercel.app",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://aband1d.com", "https://www.aband1d.com"],
+    allow_origins=definite_origins,
+    allow_origin_regex=r"^https:\/\/aband1d-.*-ishaanawasthis-projects\.vercel\.app$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 @app.post("/api/search")
 async def classify_location(request: Request):
