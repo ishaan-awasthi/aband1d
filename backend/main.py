@@ -49,8 +49,18 @@ async def classify_location(request: Request):
 
         # Run Python inference
         inference_path = os.path.join("model", "inference.py")
-        print(f"🧠 [BACKEND] Running inference.py at {inference_path}...")
-        output = subprocess.check_output(["python3", inference_path])
+        
+        
+        try:
+            print(f"🧠 Running inference.py at {inference_path}...")
+            output = subprocess.check_output(["python3", inference_path], stderr=subprocess.STDOUT)
+            print("✅ inference.py completed")
+        except subprocess.CalledProcessError as e:
+            print("💥 inference.py failed!")
+            print(e.output.decode())
+            return {"error": "inference script failed"}
+
+
         print("✅ [BACKEND] inference.py completed")
         print("📄 [BACKEND] Inference output raw:", output.decode())
 
