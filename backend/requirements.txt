@@ -4,4 +4,3 @@ python-dotenv
 torch
 torchvision
 pillow
-traceback
