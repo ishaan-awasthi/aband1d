@@ -40,21 +40,7 @@ def predict_image(image_path):
 
 if __name__ == "__main__":
     image_dir = os.path.abspath(os.path.join(script_dir, "../images"))
-    print(f"📂 Looking for images in: {image_dir}")
-    
-    if not os.path.exists(image_dir):
-        print(f"❌ Image directory not found: {image_dir}")
-        exit(1)
-        
-    image_files = [f for f in os.listdir(image_dir) if f.endswith(".jpg")]
-    
-    if not image_files:
-        print("📂 No images found in /images — skipping inference.")
-        exit(0)
-        
-    print(f"📸 Found {len(image_files)} images to process")
-    
-    for fname in image_files:
-        predict_image(os.path.join(image_dir, fname))
-        
+    for fname in os.listdir(image_dir):
+        if fname.endswith(".jpg"):
+            predict_image(os.path.join(image_dir, fname))
     print("✅ Finished processing all images")
