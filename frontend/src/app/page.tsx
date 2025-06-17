@@ -23,9 +23,10 @@ export default function Home() {
       });
 
       const data = await res.json();
+      console.log("data from backend:", data);
       if (!res.ok) throw new Error(data.error || "Something went wrong");
 
-      setResults(data.predictions);
+      setResults(data.results);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       setError(message);
