@@ -1,3 +1,4 @@
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 import subprocess
@@ -15,41 +16,43 @@ app.add_middleware(
         "https://aband1d.vercel.app",
         "https://aband1d-git-main-ishaanawasthis-projects.vercel.app",
     ],
-    allow_origin_regex=r"^https:\/\/aband1d-.*-ishaanawasthis-projects\.vercel\.app$",
+    allow_origin_regex=r"^https://aband1d-.*-ishaanawasthis-projects\.vercel\.app$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-
 @app.post("/api/search")
 async def classify_location(request: Request):
-    print("📥 Received request to /api/search")
+    print("📥 [BACKEND] Received request to /api/search")
 
     try:
         body = await request.json()
+        print("📦 [BACKEND] Request JSON:", body)
+
         location = body.get("location")
         radius = body.get("radius")
 
         if not location or not radius:
-            print("❌ Missing location or radius")
+            print("❌ [BACKEND] Missing location or radius")
             return {"error": "Missing location or radius"}
 
-        print(f"📍 Location: {location}, 🎯 Radius: {radius}")
+        print(f"📍 [BACKEND] Location: {location}, Radius: {radius}")
 
         # Run Node.js script
-        print("🛰️ Running fetch_images.mjs...")
+        print("🛰️ [BACKEND] Running fetch_images.mjs...")
         subprocess.run(
             ["node", "scripts/fetch_images.mjs", location, str(radius)],
             check=True
         )
-        print("✅ fetch_images.mjs completed")
+        print("✅ [BACKEND] fetch_images.mjs completed")
 
         # Run Python inference
         inference_path = os.path.join("model", "inference.py")
-        print(f"🧠 Running inference.py at {inference_path}...")
+        print(f"🧠 [BACKEND] Running inference.py at {inference_path}...")
         output = subprocess.check_output(["python3", inference_path])
-        print("✅ inference.py completed")
+        print("✅ [BACKEND] inference.py completed")
+        print("📄 [BACKEND] Inference output raw:", output.decode())
 
         # Parse output
         predictions = [
@@ -61,19 +64,18 @@ async def classify_location(request: Request):
             for line in predictions
         ]
 
-        print(f"🏁 Final Results: {locations}")
+        print(f"🏁 [BACKEND] Final Results: {locations}")
         return {"results": locations}
 
     except subprocess.CalledProcessError as e:
-        print("💥 Subprocess error:")
+        print("💥 [BACKEND] Subprocess error:")
         print(e.output.decode() if e.output else str(e))
         return {"error": "subprocess failed"}
 
     except Exception as e:
-        print("💥 General error:")
+        print("💥 [BACKEND] General error:")
         traceback.print_exc()
         return {"error": str(e)}
-
 
 @app.get("/healthz")
 async def health_check():

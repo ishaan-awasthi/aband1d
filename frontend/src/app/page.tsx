@@ -15,6 +15,10 @@ export default function Home() {
     setError("");
     setResults(null);
 
+    console.log("📤 Sending request to backend...");
+    console.log("📝 Payload:", { location, radius });
+    console.log("🌐 Endpoint:", `${process.env.NEXT_PUBLIC_API_URL}/api/search`);
+
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/search`, {
         method: "POST",
@@ -22,13 +26,27 @@ export default function Home() {
         body: JSON.stringify({ location, radius }),
       });
 
-      const data = await res.json();
-      console.log("data from backend:", data);
-      if (!res.ok) throw new Error(data.error || "Something went wrong");
+      console.log("📬 Received response:", res);
+
+      const data = await res.json().catch((err) => {
+        console.error("❌ Failed to parse JSON:", err);
+        throw new Error("Failed to parse backend response");
+      });
+
+      console.log("📦 Parsed response data:", data);
+
+      if (!res.ok) {
+        throw new Error(data.error || "Something went wrong");
+      }
+
+      if (!Array.isArray(data.results)) {
+        throw new Error("Invalid data format from backend");
+      }
 
       setResults(data.results);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
+      console.error("💥 Frontend error:", message);
       setError(message);
     } finally {
       setLoading(false);
@@ -38,27 +56,34 @@ export default function Home() {
   return (
     <main className="min-h-screen p-8 sm:p-16 flex flex-col items-center justify-center gap-8">
       <h1 className="text-2xl sm:text-4xl font-semibold">aband1d</h1>
-      <form
-        onSubmit={handleSubmit}
-        className="flex flex-col gap-4 w-full max-w-md"
-      >
+
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full max-w-md">
         <input
           type="text"
           placeholder="Enter a location (e.g., New York)"
           value={location}
-          onChange={(e) => setLocation(e.target.value)}
+          onChange={(e) => {
+            console.log("📍 Location updated:", e.target.value);
+            setLocation(e.target.value);
+          }}
           className="border border-gray-300 dark:border-gray-600 rounded px-4 py-2 bg-transparent"
           required
         />
+
         <input
           type="number"
           placeholder="Radius in km"
           value={radius}
-          onChange={(e) => setRadius(parseFloat(e.target.value))}
+          onChange={(e) => {
+            const newVal = parseFloat(e.target.value);
+            console.log("📏 Radius updated:", newVal);
+            setRadius(newVal);
+          }}
           min={0.1}
           step={0.1}
           className="border border-gray-300 dark:border-gray-600 rounded px-4 py-2 bg-transparent"
         />
+
         <button
           type="submit"
           disabled={loading}
@@ -68,11 +93,11 @@ export default function Home() {
         </button>
       </form>
 
-      {error && <p className="text-red-500 mt-4">{error}</p>}
+      {error && <p className="text-red-500 mt-4">❌ {error}</p>}
 
       {results && (
         <div className="mt-8 w-full max-w-2xl">
-          <h2 className="text-lg font-semibold mb-2">Interesting Locations:</h2>
+          <h2 className="text-lg font-semibold mb-2">📍 Interesting Locations:</h2>
           {results.length === 0 ? (
             <p>No interesting spots found.</p>
           ) : (

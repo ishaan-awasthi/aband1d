@@ -4,22 +4,24 @@ from torchvision import models
 from PIL import Image
 import os
 
-# === Load model ===
+print("🔍 Running inference.py")
+
 script_dir = os.path.dirname(os.path.abspath(__file__))
 model_path = os.path.join(script_dir, "best_model.pt")
+print("🧠 Loading model from:", model_path)
 
 model = models.resnet18()
-model.fc = torch.nn.Linear(model.fc.in_features, 2)  # binary classifier
+model.fc = torch.nn.Linear(model.fc.in_features, 2)
 model.load_state_dict(torch.load(model_path, map_location=torch.device("cpu")))
 model.eval()
 
-# === Image preprocessing ===
 transform = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.ToTensor(),
 ])
 
 def predict_image(image_path):
+    print(f"🔄 Processing image: {image_path}")
     if not os.path.exists(image_path):
         print(f"❌ File not found: {image_path}")
         return
@@ -36,9 +38,9 @@ def predict_image(image_path):
     confidence = probs[predicted].item() * 100
     print(f"🖼️ {os.path.basename(image_path)} → {label} ({confidence:.2f}%)")
 
-# Run inference on all images
 if __name__ == "__main__":
     image_dir = os.path.abspath(os.path.join(script_dir, "../images"))
     for fname in os.listdir(image_dir):
         if fname.endswith(".jpg"):
             predict_image(os.path.join(image_dir, fname))
+    print("✅ Finished processing all images")

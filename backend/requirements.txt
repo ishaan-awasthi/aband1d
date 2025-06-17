@@ -3,4 +3,4 @@ uvicorn
 python-dotenv
 torch
 torchvision
-pillow
+pillow 

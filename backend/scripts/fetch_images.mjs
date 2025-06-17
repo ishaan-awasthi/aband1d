@@ -4,18 +4,18 @@ import path from "path";
 import axios from "axios";
 import { fileURLToPath } from "url";
 
-// === Setup ===
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+console.log("🚀 Starting fetch_images.mjs");
+console.log("🌐 GOOGLE_API_KEY loaded:", !!GOOGLE_API_KEY);
 if (!GOOGLE_API_KEY) {
   console.error("❌ Missing GOOGLE_API_KEY in .env");
   process.exit(1);
 }
 
-// === Helpers ===
 async function fetchJSON(url) {
   const fetch = (await import("node-fetch")).default;
   const res = await fetch(url);
@@ -38,9 +38,7 @@ async function geocode(input) {
     return coords;
   }
 
-  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
-    input
-  )}&key=${GOOGLE_API_KEY}`;
+  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(input)}&key=${GOOGLE_API_KEY}`;
   const data = await fetchJSON(url);
 
   if (data.status !== "OK" || !data.results.length) {
@@ -76,6 +74,7 @@ async function fetchAndSaveImage(lat, lng) {
   const filename = `images/${lat.toFixed(6)}_${lng.toFixed(6)}.jpg`;
   const filepath = path.resolve(__dirname, "..", filename);
 
+  console.log(`📸 Fetching image: ${url}`);
   try {
     const response = await axios({
       method: "get",
@@ -97,7 +96,6 @@ async function fetchAndSaveImage(lat, lng) {
   }
 }
 
-// === Main ===
 const input = process.argv[2];
 const radiusKm = Number(process.argv[3]) || 1;
 const radius = radiusKm * 1000;
@@ -107,9 +105,11 @@ if (!input) {
   process.exit(1);
 }
 
+console.log(`📩 Input location: "${input}", radius: ${radiusKm} km`);
+
 try {
   const coords = await geocode(input);
-  console.log(`📍 ${input} →`, coords);
+  console.log("📌 Final geocoded coords:", coords);
 
   const areaKm2 = Math.PI * Math.pow(radiusKm, 2);
   const numSamples = Math.floor(areaKm2 * 2) || 1;
