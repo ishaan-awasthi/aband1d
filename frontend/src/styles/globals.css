@@ -24,3 +24,40 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Hide the default blue pin from mapbox-gl-draw */
+.mapbox-gl-draw_point {
+    display: none !important;
+}
+
+/* Hide the drawing tool controls */
+.mapboxgl-ctrl-group {
+    display: none !important;
+}
+
+/* Force hide the Mapbox logo and attribution text */
+.mapboxgl-ctrl-bottom-left,
+.mapboxgl-ctrl-bottom-right,
+.mapboxgl-ctrl.mapboxgl-ctrl-attrib {
+    display: none !important;
+}
+
+.mapboxgl-ctrl-bottom-right {
+    display: none !important;
+}
+
+.mapbox-gl-draw_ctrl-draw-btn {
+    display: none !important;
+}
+
+.custom-popup .mapboxgl-popup-content {
+    background-color: #2c2c2c; /* Dark Gray */
+    color: #f0f0f0; /* Very Light Gray */
+    border-radius: 6px;
+    padding: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.custom-popup .mapboxgl-popup-tip {
+    border-top-color: #2c2c2c;
+}

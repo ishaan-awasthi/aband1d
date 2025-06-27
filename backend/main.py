@@ -1,9 +1,13 @@
-
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 import subprocess
 import os
 import traceback
+import json
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), 'model'))
+from model.inference import predict_image
 
 app = FastAPI()
 
@@ -15,6 +19,7 @@ app.add_middleware(
         "https://www.aband1d.com",
         "https://aband1d.vercel.app",
         "https://aband1d-git-main-ishaanawasthis-projects.vercel.app",
+        "http://localhost:3000",  # Local development
     ],
     allow_origin_regex=r"^https://aband1d-.*-ishaanawasthis-projects\.vercel\.app$",
     allow_credentials=True,
@@ -22,38 +27,56 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-##### THIS VERSION IS WITHOUT INFERENCE.PY LOGIC, WORKING PIPELINE WITHOUT CLASSIFICATION
+# Mount the images directory
+app.mount("/images", StaticFiles(directory="images"), name="images")
+
 @app.post("/api/search")
 async def classify_location(request: Request):
     print("📥 [BACKEND] Received request to /api/search")
+    print(f"BACKEND CWD: {os.getcwd()}")
 
     try:
         body = await request.json()
         print("📦 [BACKEND] Request JSON:", body)
 
-        location = body.get("location")
-        radius = body.get("radius")
+        coordinates = body.get("coordinates")
+        if not coordinates:
+            print("❌ [BACKEND] Missing polygon coordinates")
+            return {"error": "Missing polygon coordinates"}
 
-        if not location or not radius:
-            print("❌ [BACKEND] Missing location or radius")
-            return {"error": "Missing location or radius"}
+        print(f"📍 [BACKEND] Processing polygon with coordinates:", coordinates)
 
-        print(f"📍 [BACKEND] Location: {location}, Radius: {radius}")
-
-        # Run Node.js script
+        # Run Node.js script with polygon coordinates
         print("🛰️ [BACKEND] Running fetch_images.mjs...")
         subprocess.run(
-            ["node", "scripts/fetch_images.mjs", location, str(radius)],
+            ["node", "scripts/fetch_images.mjs", json.dumps(coordinates)],
             check=True
         )
         print("✅ [BACKEND] fetch_images.mjs completed")
 
-        # 🔧 DEBUG: skip inference, just return downloaded image names
+        # Return downloaded image names
         images_dir = os.path.join(os.getcwd(), "images")
-        all_images = [f.replace(".jpg", "") for f in os.listdir(images_dir) if f.endswith(".jpg")]
-        print(f"📸 [BACKEND] Returning image filenames: {all_images}")
+        all_images = [f for f in os.listdir(images_dir) if f.endswith(".jpg")]
+        interesting_images = []
+        for f in all_images:
+            img_path = os.path.join(images_dir, f)
+            label, confidence, caption = predict_image(img_path)
+            if label == "interesting" or (label == "boring" and confidence < 85.0):
+                # Parse lat/lng from filename
+                name = f.replace('.jpg', '')
+                try:
+                    lat, lng = map(float, name.split('_'))
+                except Exception:
+                    lat, lng = None, None
+                interesting_images.append({
+                    "lat": lat,
+                    "lng": lng,
+                    "filename": f,
+                    "caption": caption
+                })
+        print(f"📸 [BACKEND] Returning image filenames: {interesting_images}")
 
-        return {"results": all_images}
+        return {"results": interesting_images}
 
     except subprocess.CalledProcessError as e:
         print("💥 [BACKEND] Subprocess error:")
@@ -64,76 +87,6 @@ async def classify_location(request: Request):
         print("💥 [BACKEND] General error:")
         traceback.print_exc()
         return {"error": str(e)}
-
-
-
-
-
-###### THIS VERSION HAD INFERENCE.PY LOGIC, CRASHED THE PIPELINE
-# @app.post("/api/search")
-# async def classify_location(request: Request):
-#     print("📥 [BACKEND] Received request to /api/search")
-
-#     try:
-#         body = await request.json()
-#         print("📦 [BACKEND] Request JSON:", body)
-
-#         location = body.get("location")
-#         radius = body.get("radius")
-
-#         if not location or not radius:
-#             print("❌ [BACKEND] Missing location or radius")
-#             return {"error": "Missing location or radius"}
-
-#         print(f"📍 [BACKEND] Location: {location}, Radius: {radius}")
-
-#         # Run Node.js script
-#         print("🛰️ [BACKEND] Running fetch_images.mjs...")
-#         subprocess.run(
-#             ["node", "scripts/fetch_images.mjs", location, str(radius)],
-#             check=True
-#         )
-#         print("✅ [BACKEND] fetch_images.mjs completed")
-
-#         # Run Python inference
-#         inference_path = os.path.join("model", "inference.py")
-        
-        
-#         try:
-#             print(f"🧠 Running inference.py at {inference_path}...")
-#             output = subprocess.check_output(["python3", inference_path], stderr=subprocess.STDOUT)
-#             print("✅ inference.py completed")
-#         except subprocess.CalledProcessError as e:
-#             print("💥 inference.py failed!")
-#             print(e.output.decode())
-#             return {"error": "inference script failed"}
-
-
-#         print("✅ [BACKEND] inference.py completed")
-#         print("📄 [BACKEND] Inference output raw:", output.decode())
-
-#         # Parse output
-#         predictions = [
-#             line for line in output.decode().split("\n")
-#             if "→ interesting" in line
-#         ]
-#         locations = [
-#             line.split("→")[0].strip().replace(".jpg", "")
-#             for line in predictions
-#         ]
-
-#         print(f"🏁 [BACKEND] Final Results: {locations}")
-#         return {"results": locations}
-
-#     except subprocess.CalledProcessError as e:
-#         print("💥 [BACKEND] Subprocess error:")
-#         print(e.output.decode() if e.output else str(e))
-#         return {"error": "subprocess failed"}
-
-#     except Exception as e:
-#         print("💥 [BACKEND] General error:")
-#         traceback.print_exc()
-#         return {"error": str(e)}
 
 @app.get("/healthz")
 async def health_check():

@@ -1,11 +1,11 @@
 {
-  "name": "aband1d-backend",
+    "name": "aband1d-backend",
   "version": "1.0.0",
-  "type": "module",
-  "dependencies": {
+    "type": "module",
+    "dependencies": {
     "dotenv": "^16.4.5",
     "axios": "^1.6.7",
     "node-fetch": "^3.3.2"
+    }
   }
-}
   

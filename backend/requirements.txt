@@ -3,4 +3,7 @@ uvicorn
 python-dotenv
 torch
 torchvision
-pillow 
+pillow
+requests
+einops
+pyvips-binary
