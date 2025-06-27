@@ -441,7 +441,11 @@ export default function Home() {
     <main className="fixed inset-0 overflow-hidden">
       {/* Map as background */}
       <div className="absolute inset-0 z-0">
-        <MapView ref={mapViewRef} flyTo={flyTo} dragPan={!!flyTo && !focusing && !showConfirm}>
+        <MapView
+          ref={mapViewRef}
+          flyTo={flyTo}
+          dragPan={!!flyTo && !focusing && !showConfirm && !showNoAnomaliesOverlay}
+        >
           {showInstructions && instructionsVisible && !selectedPolygon && (
             <PolygonDraw onComplete={setSelectedPolygon} />
           )}
