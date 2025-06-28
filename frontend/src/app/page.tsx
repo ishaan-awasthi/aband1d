@@ -18,7 +18,7 @@ const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
 const API_BASE = process.env.NODE_ENV === 'development' 
   ? 'http://localhost:8000'
-  : 'https://aband1d-backend.onrender.com';
+  : 'https://aband1d.onrender.com';
 
 const polygonLayer = {
   id: 'selected-polygon',
