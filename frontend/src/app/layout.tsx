@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "aband1d",
-  description: "AI-powered exploration of the abandoned world",
+  description: "📍 find cool stuff to explore",
   icons: {
     icon: "/favicon.ico",
   },
